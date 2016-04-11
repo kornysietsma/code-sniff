@@ -30,7 +30,7 @@
         "slurp-cloc  - slurp yaml data from cloc"
         "   - generate with 'cloc . --by-file --yaml --quiet > data.yml'"
         "  "
-        "slurp-maat-age - slurp code-maat age output"
+        "slurp-maat - slurp code-maat output - you should use a category to specify _which_ code maat output you are slurping, anything with an 'entity' column will be loaded"
         " "
         "you can pipe things together if you want, on a unix-y system:"
         "'cloc . --by-file --yaml --quiet | lein run slurp-cloc | lein run combine > out.flare'"
