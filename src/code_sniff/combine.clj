@@ -54,7 +54,7 @@
       (#(combine empty-flare %))
       (cheshire/generate-stream out-file {:pretty true})))
   ([^String base-file-name ^Reader in-file ^Writer out-file]
-   (let [base-flare (cheshire/parse-string (slurp base-file-name))]
+   (let [base-flare (cheshire/parse-string (slurp base-file-name) true)]
      (->
        in-file
        (cheshire/parse-stream true)

@@ -1,6 +1,7 @@
 (ns code-sniff.cli
   (:require
     [code-sniff.conv.cloc :as cloc]
+    [code-sniff.conv.code-maat :as code-maat]
     [code-sniff.combine :as combine]
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.java.io :as io]
@@ -12,6 +13,7 @@
     :validate [#(.exists (io/file %)) "Must be a valid file"]]
    ["-b" "--base filename" "select a base flare-format json file to combine with"]
    ["-o" "--output filename" "select an output file name (default is STDOUT)"]
+   ["-c" "--category cat" "store data that is slurped, in a named category under 'data' (good for different code-maat inputs)"]
    ["-h" "--help"]])
 
 (defn usage [options-summary]
@@ -28,6 +30,8 @@
         "slurp-cloc  - slurp yaml data from cloc"
         "   - generate with 'cloc . --by-file --yaml --quiet > data.yml'"
         "  "
+        "slurp-maat-age - slurp code-maat age output"
+        " "
         "you can pipe things together if you want, on a unix-y system:"
         "'cloc . --by-file --yaml --quiet | lein run slurp-cloc | lein run combine > out.flare'"
         "(this assumes you are running from leiningen - if using a jar file, substitute 'java -jar whatever.jar')"
@@ -54,10 +58,12 @@
                     *in*)
           out-file (if (:output options)
                      (io/writer (:output options))
-                     *out*)]
+                     *out*)
+          category (keyword (:category options))]
       (try
         (case (first arguments)
-          "slurp-cloc" (cloc/convert-yaml-to-json in-file out-file)
+          "slurp-cloc" (cloc/convert-yaml-to-json category in-file out-file)
+          "slurp-maat" (code-maat/convert-csv-to-json category in-file out-file)
           "combine" (if (:base options)
                       (combine/combine-files (:base options) in-file out-file)
                       (combine/combine-files in-file out-file))

@@ -12,7 +12,9 @@
                  [org.clojure/tools.cli "0.3.3"]
                  [prismatic/schema "1.1.0"]
                  [cheshire "5.5.0"]
-                 [clj-yaml "0.4.0"]]
+                 [clj-yaml "0.4.0"]
+                 [clojure-csv/clojure-csv "2.0.1"]
+                 [semantic-csv "0.1.0"]]
   :main code-sniff.cli
   :profiles {
              :uberjar {:aot :all}
