@@ -15,7 +15,7 @@
 
 (fact "Flare validates actual json parsed in"
       (->
-        "test/metrics_slurp/flare_sample.json"
+        "test/code_sniff/flare_sample.json"
         clojure.java.io/reader
         (cheshire/parse-stream true)
         (#(s/check subject/Flare %)))

@@ -18,7 +18,8 @@
   :main code-sniff.cli
   :profiles {
              :uberjar {:aot :all}
-             :dev {:dependencies [[midje "1.8.3"]]}
+             :dev {:dependencies [[midje "1.8.3"]
+                                  [inspector-jay "0.3"]]}
              }
   :plugins [[lein-midje "3.2"]]
   )

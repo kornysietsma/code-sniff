@@ -2,6 +2,7 @@
   (:require
     [code-sniff.conv.cloc :as cloc]
     [code-sniff.conv.code-maat :as code-maat]
+    [code-sniff.conv.cr :as cr]
     [code-sniff.combine :as combine]
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.java.io :as io]
@@ -14,6 +15,7 @@
    ["-b" "--base filename" "select a base flare-format json file to combine with"]
    ["-o" "--output filename" "select an output file name (default is STDOUT)"]
    ["-c" "--category cat" "store data that is slurped, in a named category under 'data' (good for different code-maat inputs)"]
+   ["-bp" "--basepath path" "specify base path to truncate from files with absolute paths like complexity report"]
    ["-h" "--help"]])
 
 (defn usage [options-summary]
@@ -31,6 +33,8 @@
         "   - generate with 'cloc . --by-file --yaml --quiet > data.yml'"
         "  "
         "slurp-maat - slurp code-maat output - you should use a category to specify _which_ code maat output you are slurping, anything with an 'entity' column will be loaded"
+        " "
+        "slurp-complexity-report - slurp json output from the javascript complexity report tool"
         " "
         "you can pipe things together if you want, on a unix-y system:"
         "'cloc . --by-file --yaml --quiet | lein run slurp-cloc | lein run combine > out.flare'"
@@ -64,6 +68,9 @@
         (case (first arguments)
           "slurp-cloc" (cloc/convert-yaml-to-json category in-file out-file)
           "slurp-maat" (code-maat/convert-csv-to-json category in-file out-file)
+          "slurp-complexity-report" (cr/convert-json-to-json {:basepath (:basepath options)
+                                                              :category category}
+                                                             in-file out-file)
           "combine" (if (:base options)
                       (combine/combine-files (:base options) in-file out-file)
                       (combine/combine-files in-file out-file))
