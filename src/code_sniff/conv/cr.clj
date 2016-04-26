@@ -1,6 +1,5 @@
 (ns code-sniff.conv.cr
-  (require [cheshire.core :as cheshire]
-           [inspector-jay.core :as ij])
+  (require [cheshire.core :as cheshire])
   (:import (java.io File Reader Writer)))
 
 ; complexity-report
@@ -40,12 +39,3 @@
       (convert basepath category)
       (cheshire/generate-stream out-file {:pretty true})))
 
-(comment
-  (relativize "/foo/x/bar" "/foo/x")
-  (ij/inspect
-    (cheshire/parse-string (slurp "samples/complexity_small.json") true))
-
-  (def parsed (cheshire/parse-string (slurp "samples/complexity_small.json") true))
-
-  (map #(select-keys % [:path :cyclomatic :maintainability :effort]) (:reports parsed))
-  )

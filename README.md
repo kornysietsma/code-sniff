@@ -78,4 +78,20 @@ your option) any later version.
 
 ## TODO
 
-- handle windows path separators?
+- split this into separate convert and combine apps, rather than a monolith!
+- handle windows path separators? Can we do this without depending on Java 7?
+- move more/all logic into the combiner - e.g. intermediate files could have absolute or relative paths,
+let the combiner handle relativizing.  That keeps the sniffers as simple as possible.  The combiner
+might possibly use Java 7 Path commands as well.
+
+### Intermediate file format
+
+I think the intermediate file format suffers from being hard to append to. It'd be interesting
+to look into whether it could be created without the initial and final "[]" - would that be valid json?
+
+Alternatively and maybe more unix-y, the intermediate format could be CSV files?  That would also mean
+that code-maat outputs could be read without any interpretation.
+It might be necessary to support two formats though, as csv is limited for complex child formats.
+Or you could use a column naming scheme like "file,cloc.language,cloc.
+
+Actually csv files still can't be appended to that easily... maybe stick to json for now.

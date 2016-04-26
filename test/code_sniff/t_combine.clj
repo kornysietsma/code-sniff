@@ -9,7 +9,8 @@
 (fact "combining with an empty map builds a 'flare' root and children"
 
       (subject/combine {:name "flare" :children []}
-                       [{:filename "foo/bar.txt" :data {:foo :bar}}])
+                       [{:filename "foo/bar.txt" :data {:foo :bar}}]
+                       :merge)
       =>
       {:name "flare"
        :children [{:name "foo"
@@ -22,7 +23,8 @@
       (subject/combine {:name "flare" :children []}
                        [{:filename "foo/bar.txt" :data {:size 2}}
                         {:filename "foo/baz.txt" :data {:size 3}}
-                        {:filename "another/file.txt" :data {:size 4}}])
+                        {:filename "another/file.txt" :data {:size 4}}]
+                       :merge)
       =>
       {:name     "flare"
        :children [{:name     "foo"
@@ -34,12 +36,34 @@
                       :children [{:name "file.txt" :data {:size 4}}]}]}
       )
 
+(fact "combining in update-only mode only updates existing nodes"
+
+      (subject/combine {:name "flare" :children [{:name     "foo"
+                                                  :children [{:name "bar.txt"
+                                                              :data {:size 2}}
+                                                             ]}]}
+                       [{:filename "foo/bar.txt" :data {:size 5
+                                                        :extra true}}
+                        {:filename "foo/baz.txt" :data {:size 3}}
+                        {:filename "another/file.txt" :data {:size 4}}]
+                       :update-only)
+      =>
+      {:name     "flare"
+       :children [{:name     "foo"
+                   :children [{:name "bar.txt"
+                               :data {:size 5
+                                      :extra true}}
+                              ]}]}
+      )
+
+
 (fact "You can store and combine data at non-leaf nodes"
 
       (subject/combine {:name "flare" :children []}
                        [{:filename "foo/bar" :data {:dir true}}
                         {:filename "foo/bar/baz.txt" :data {:size 3}}
-                        {:filename "foo/bar" :data {:extra true}}])
+                        {:filename "foo/bar" :data {:extra true}}]
+                       :merge)
       =>
       {:name     "flare"
        :children [{:name     "foo"
@@ -54,7 +78,8 @@
 
       (subject/combine {:name "flare" :children []}
                        [{:filename "foo/bar.txt" :data {:size 2}}
-                        {:filename "foo/bar.txt" :data {:size 3}}])
+                        {:filename "foo/bar.txt" :data {:size 3}}]
+                       :merge)
       =>
       {:name     "flare"
        :children [{:name     "foo"
@@ -65,7 +90,8 @@
 
       (subject/combine {:name "flare" :children []}
                        [{:filename "foo/bar.txt" :data {:fish [:red]}}
-                        {:filename "foo/bar.txt" :data {:fish [:blue]}}])
+                        {:filename "foo/bar.txt" :data {:fish [:blue]}}]
+                       :merge)
       =>
       {:name     "flare"
        :children [{:name     "foo"
@@ -79,7 +105,8 @@
                                                                      :age 99}
                                                                :patty "yay"}}}
                         {:filename "foo/bar.txt" :data {:kids {:roy {:traits [:good]
-                                                                     :age 17}}}}])
+                                                                     :age 17}}}}]
+                       :merge)
       =>
       {:name     "flare"
        :children [{:name     "foo"

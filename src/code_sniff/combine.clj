@@ -23,40 +23,42 @@
 
 (defn update-in-flare
   "like update-in but uses 'name' and 'children' for flare structures"
-  [flare [name & names :as all-names] data]
+  [flare [name & names :as all-names] data combine-strategy]
   (let [{matches true mismatches false} (group-by #(= name (:name %)) (:children flare))
         mismatches (or mismatches [])]                      ; as nil mismatches causes strangeness
     (if-not matches
-      (add-to-flare flare all-names data)
+      (if (= :merge combine-strategy)
+        (add-to-flare flare all-names data)
+        flare)
       (let [match (first matches)]
         (assert (empty (rest matches)) (str "multiple children with name " name))
         (if names
-          (assoc flare :children (conj mismatches (update-in-flare match names data)))
+          (assoc flare :children (conj mismatches (update-in-flare match names data combine-strategy)))
           (assoc flare :children (conj mismatches (merge-flare-data match data))))))))
 
 (def filesep (re-pattern File/separator))
 
-(defn- combinefn [flare {:keys [filename data] :as val}]
+(defn- combinefn [combine-strategy flare {:keys [filename data] :as val}]
   (let [pathbits (clojure.string/split filename filesep)]
-    (update-in-flare flare pathbits data)))
+    (update-in-flare flare pathbits data combine-strategy)))
 
 (defn combine "Combine Slurped data into a Flare structure"
-  [flare slurp]
-  (reduce combinefn flare slurp))
+  [flare slurp combine-strategy]
+  (reduce (partial combinefn combine-strategy) flare slurp))
 
 (def empty-flare {:name "flare" :children []})
 
 (defn combine-files "read files and combine, send output to file"
-  ([^Reader in-file ^Writer out-file]
+  ([combine-strategy ^Reader in-file ^Writer out-file]
     (->
       in-file
       (cheshire/parse-stream true)
-      (#(combine empty-flare %))
+      (#(combine empty-flare % combine-strategy))
       (cheshire/generate-stream out-file {:pretty true})))
-  ([^String base-file-name ^Reader in-file ^Writer out-file]
+  ([^String base-file-name combine-strategy ^Reader in-file ^Writer out-file]
    (let [base-flare (cheshire/parse-string (slurp base-file-name) true)]
      (->
        in-file
        (cheshire/parse-stream true)
-       (#(combine base-flare %))
+       (#(combine base-flare % combine-strategy))
        (cheshire/generate-stream out-file {:pretty true})))))

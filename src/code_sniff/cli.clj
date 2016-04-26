@@ -13,9 +13,10 @@
   [["-i" "--input filename" "select an input file name (default is STDIN)"
     :validate [#(.exists (io/file %)) "Must be a valid file"]]
    ["-b" "--base filename" "select a base flare-format json file to combine with"]
+   ["-u" "--update-only" "if set, combine only updates existing files, doesn't create anything"]
    ["-o" "--output filename" "select an output file name (default is STDOUT)"]
    ["-c" "--category cat" "store data that is slurped, in a named category under 'data' (good for different code-maat inputs)"]
-   ["-bp" "--basepath path" "specify base path to truncate from files with absolute paths like complexity report"]
+   ["-p" "--basepath path" "specify base path to truncate from files with absolute paths like complexity report"]
    ["-h" "--help"]])
 
 (defn usage [options-summary]
@@ -63,7 +64,10 @@
           out-file (if (:output options)
                      (io/writer (:output options))
                      *out*)
-          category (keyword (:category options))]
+          category (keyword (:category options))
+          combine-strategy (if (:update-only options)
+                             :update-only
+                             :merge)]
       (try
         (case (first arguments)
           "slurp-cloc" (cloc/convert-yaml-to-json category in-file out-file)
@@ -72,8 +76,8 @@
                                                               :category category}
                                                              in-file out-file)
           "combine" (if (:base options)
-                      (combine/combine-files (:base options) in-file out-file)
-                      (combine/combine-files in-file out-file))
+                      (combine/combine-files (:base options) combine-strategy in-file out-file)
+                      (combine/combine-files combine-strategy in-file out-file))
           (exit 1 (usage summary)))
         (finally
           (if (:input options)
