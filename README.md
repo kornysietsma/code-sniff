@@ -1,3 +1,7 @@
+# Archived!
+
+I'm archiving this - I'm planning to push smaller simpler tools soon to replace it - this stuff worked but was a bit too complex.
+
 # code-sniff
 
 A set of clojure tools for combining data from several kinds of code quality tools,
